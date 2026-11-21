@@ -72,7 +72,8 @@
     <!-- Button page -->
     <string name="button_device">Eingabegerät: %1$s</string>
     <string name="section_general">Allgemein</string>
-    <string name="button_active">Taste aktiv</string>
+    <string name="button_active">Aktiviert</string>
+    <string name="button_active_desc">Button Mapper reagiert auf diese Taste. Ausgeschaltet verhält sie sich, als wäre die App nicht installiert.</string>
     <string name="block_system_function">Normale Tastenfunktion blockieren</string>
     <string name="section_gestures">Gesten</string>
     <string name="button_delete">Taste entfernen</string>

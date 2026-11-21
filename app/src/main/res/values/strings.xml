@@ -73,7 +73,8 @@
     <!-- Button page -->
     <string name="button_device">Input device: %1$s</string>
     <string name="section_general">General</string>
-    <string name="button_active">Button active</string>
+    <string name="button_active">Enabled</string>
+    <string name="button_active_desc">Button Mapper reacts to this button. When off, the button behaves as if the app were not installed.</string>
     <string name="block_system_function">Block normal button function</string>
     <string name="section_gestures">Gestures</string>
     <string name="button_delete">Remove button</string>

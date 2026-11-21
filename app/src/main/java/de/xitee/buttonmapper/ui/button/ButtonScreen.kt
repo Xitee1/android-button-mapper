@@ -67,6 +67,7 @@ fun ButtonScreen(vm: MainViewModel, buttonId: String, onBack: () -> Unit, onOpen
                 headline = stringResource(R.string.button_active),
                 checked = button.enabled,
                 onCheckedChange = { vm.setButtonEnabled(button.id, it) },
+                supporting = { Text(stringResource(R.string.button_active_desc)) },
             )
             SwitchListItem(
                 headline = stringResource(R.string.block_system_function),
