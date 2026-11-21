@@ -1,4 +1,4 @@
-# Button Mapper
+# Android Button Mapper
 
 Small Android app that reads hardware buttons directly from `/dev/input/event*` via
 **[Shizuku](https://shizuku.rikka.app/)** and maps gestures (single press, double press, press and hold)
