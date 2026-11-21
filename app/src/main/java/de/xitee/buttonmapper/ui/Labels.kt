@@ -2,9 +2,13 @@ package de.xitee.buttonmapper.ui
 
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import de.xitee.buttonmapper.R
 import de.xitee.buttonmapper.model.ActionConfig
+import de.xitee.buttonmapper.model.ConfiguredAction
 import de.xitee.buttonmapper.model.Gesture
+import de.xitee.buttonmapper.model.VibrationPattern
 import de.xitee.buttonmapper.shizuku.ReaderError
 import de.xitee.buttonmapper.shizuku.ShizukuStatus
 
@@ -38,7 +42,37 @@ val Gesture.shortLabelRes: Int
 val ActionConfig.labelRes: Int
     get() = when (this) {
         is ActionConfig.FlashlightToggle -> R.string.action_flashlight_toggle
+        is ActionConfig.Vibrate -> R.string.action_vibrate
     }
+
+@get:StringRes
+val VibrationPattern.labelRes: Int
+    get() = when (this) {
+        VibrationPattern.TICK -> R.string.vibration_pattern_tick
+        VibrationPattern.CLICK -> R.string.vibration_pattern_click
+        VibrationPattern.DOUBLE_CLICK -> R.string.vibration_pattern_double_click
+        VibrationPattern.HEAVY_CLICK -> R.string.vibration_pattern_heavy_click
+        VibrationPattern.CUSTOM -> R.string.vibration_pattern_custom
+    }
+
+/** One-line summary of an action's settings, shown below its label. */
+@Composable
+fun actionSummary(action: ActionConfig): String = when (action) {
+    is ActionConfig.FlashlightToggle ->
+        if (action.autoOffEnabled) stringResource(R.string.flashlight_summary_auto_off, action.autoOffMinutes)
+        else stringResource(R.string.flashlight_summary_no_auto_off)
+    is ActionConfig.Vibrate ->
+        if (action.pattern == VibrationPattern.CUSTOM) {
+            stringResource(R.string.vibration_summary_custom, action.durationMs, action.strengthPercent)
+        } else {
+            stringResource(action.pattern.labelRes)
+        }
+}
+
+/** Comma-separated labels of a gesture's actions, or null if it has none. */
+@Composable
+fun actionLabels(actions: List<ConfiguredAction>): String? =
+    actions.takeIf { it.isNotEmpty() }?.map { stringResource(it.config.labelRes) }?.joinToString(", ")
 
 @get:StringRes
 val ShizukuStatus.labelRes: Int

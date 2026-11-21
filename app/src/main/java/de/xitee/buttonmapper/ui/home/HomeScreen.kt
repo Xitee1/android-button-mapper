@@ -44,6 +44,7 @@ import de.xitee.buttonmapper.shizuku.ShizukuStatus
 import de.xitee.buttonmapper.ui.MainViewModel
 import de.xitee.buttonmapper.ui.components.InfoText
 import de.xitee.buttonmapper.ui.components.SectionHeader
+import de.xitee.buttonmapper.ui.actionLabels
 import de.xitee.buttonmapper.ui.labelRes
 import de.xitee.buttonmapper.ui.message
 import de.xitee.buttonmapper.ui.shortLabelRes
@@ -163,9 +164,9 @@ private fun StatusCard(
 private fun ButtonCard(button: ButtonConfig, onClick: () -> Unit) {
     val summary = when {
         !button.enabled -> stringResource(R.string.button_off)
-        button.actions.isEmpty() -> stringResource(R.string.button_no_actions)
+        button.mappedGestures.isEmpty() -> stringResource(R.string.button_no_actions)
         else -> Gesture.entries.mapNotNull { g ->
-            button.actions[g]?.let { stringResource(R.string.gesture_summary, stringResource(g.shortLabelRes), stringResource(it.labelRes)) }
+            actionLabels(button.actions(g))?.let { stringResource(R.string.gesture_summary, stringResource(g.shortLabelRes), it) }
         }.joinToString(" · ")
     }
     Card(

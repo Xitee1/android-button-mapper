@@ -25,8 +25,8 @@ data class KeyTrigger(
  * An action a gesture can run, including its own settings.
  *
  * To add an action: add a subclass here, list a default instance in [ActionConfig.defaults], handle it in
- * [de.xitee.buttonmapper.action.ActionExecutor], give it a label in `ui/Labels.kt` and, if it has
- * settings, a settings section in `ui/action/ActionSettings.kt`.
+ * [de.xitee.buttonmapper.action.ActionExecutor], give it a label and summary in `ui/Labels.kt` and, if it
+ * has settings, a settings section in `ui/action/ActionSettings.kt`.
  */
 @Serializable
 sealed interface ActionConfig {
@@ -41,13 +41,39 @@ sealed interface ActionConfig {
         val autoOffMillis: Long? get() = if (autoOffEnabled) autoOffMinutes * 60_000L else null
     }
 
+    @Serializable
+    @SerialName("vibrate")
+    data class Vibrate(
+        val pattern: VibrationPattern = VibrationPattern.CLICK,
+        /** Only used by [VibrationPattern.CUSTOM]. */
+        val durationMs: Int = 200,
+        /** 10..100 %, only used by [VibrationPattern.CUSTOM] on devices with amplitude control. */
+        val strengthPercent: Int = 100,
+    ) : ActionConfig
+
     companion object {
         /** One default instance per action type, in the order offered in the UI. */
-        val defaults: List<ActionConfig> = listOf(FlashlightToggle())
+        val defaults: List<ActionConfig> = listOf(FlashlightToggle(), Vibrate())
     }
 }
 
-/** A configured hardware button with one optional action per gesture. */
+@Serializable
+enum class VibrationPattern {
+    @SerialName("tick") TICK,
+    @SerialName("click") CLICK,
+    @SerialName("double_click") DOUBLE_CLICK,
+    @SerialName("heavy_click") HEAVY_CLICK,
+    @SerialName("custom") CUSTOM,
+}
+
+/** An action as configured on a gesture; [id] identifies it in navigation and edits. */
+@Serializable
+data class ConfiguredAction(
+    val id: String = UUID.randomUUID().toString(),
+    val config: ActionConfig,
+)
+
+/** A configured hardware button with a list of actions per gesture, run in order. */
 @Serializable
 data class ButtonConfig(
     val id: String = UUID.randomUUID().toString(),
@@ -58,8 +84,13 @@ data class ButtonConfig(
      * of [KeyTrigger.deviceName], so it only works for device-specific triggers.
      */
     val blockSystemFunction: Boolean = false,
-    val actions: Map<Gesture, ActionConfig> = emptyMap(),
-)
+    val gestures: Map<Gesture, List<ConfiguredAction>> = emptyMap(),
+) {
+    fun actions(gesture: Gesture): List<ConfiguredAction> = gestures[gesture].orEmpty()
+
+    /** Gestures that have at least one action. */
+    val mappedGestures: Set<Gesture> get() = gestures.filterValues { it.isNotEmpty() }.keys
+}
 
 @Serializable
 data class Timing(

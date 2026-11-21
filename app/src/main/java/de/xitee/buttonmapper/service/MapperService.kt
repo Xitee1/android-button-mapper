@@ -120,11 +120,12 @@ class MapperService : LifecycleService() {
     }
 
     private fun mappedGestures(event: InputKeyEvent): Set<Gesture> =
-        config.activeButtonsFor(event.keyName, event.deviceName).flatMapTo(HashSet()) { it.actions.keys }
+        config.activeButtonsFor(event.keyName, event.deviceName).flatMapTo(HashSet()) { it.mappedGestures }
 
     private fun runGesture(event: InputKeyEvent, gesture: Gesture) {
         config.activeButtonsFor(event.keyName, event.deviceName)
-            .mapNotNull { it.actions[gesture] }
+            .flatMap { it.actions(gesture) }
+            .map { it.config }
             .forEach { action ->
                 val result = actions.execute(action)
                 val gestureLabel = getString(gesture.labelRes)

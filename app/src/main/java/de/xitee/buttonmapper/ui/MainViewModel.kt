@@ -9,6 +9,7 @@ import de.xitee.buttonmapper.input.KeyAction
 import de.xitee.buttonmapper.model.ActionConfig
 import de.xitee.buttonmapper.model.AppConfig
 import de.xitee.buttonmapper.model.ButtonConfig
+import de.xitee.buttonmapper.model.ConfiguredAction
 import de.xitee.buttonmapper.model.Gesture
 import de.xitee.buttonmapper.model.KeyTrigger
 import de.xitee.buttonmapper.model.Timing
@@ -103,10 +104,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setButtonBlocksSystemFunction(id: String, block: Boolean) =
         updateButton(id) { it.copy(blockSystemFunction = block) }
 
-    /** Sets the action of a gesture; null removes it. */
-    fun setAction(id: String, gesture: Gesture, action: ActionConfig?) = updateButton(id) {
-        it.copy(actions = if (action == null) it.actions - gesture else it.actions + (gesture to action))
+    fun addAction(buttonId: String, gesture: Gesture, action: ActionConfig) = updateActions(buttonId, gesture) {
+        it + ConfiguredAction(config = action)
     }
+
+    fun updateAction(buttonId: String, gesture: Gesture, actionId: String, action: ActionConfig) =
+        updateActions(buttonId, gesture) { list -> list.map { if (it.id == actionId) it.copy(config = action) else it } }
+
+    fun removeAction(buttonId: String, gesture: Gesture, actionId: String) =
+        updateActions(buttonId, gesture) { list -> list.filterNot { it.id == actionId } }
+
+    private fun updateActions(
+        buttonId: String,
+        gesture: Gesture,
+        transform: (List<ConfiguredAction>) -> List<ConfiguredAction>,
+    ) = updateButton(buttonId) { it.copy(gestures = it.gestures + (gesture to transform(it.actions(gesture)))) }
 
     fun setTiming(timing: Timing) = update { it.copy(timing = timing) }
 

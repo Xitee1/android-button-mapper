@@ -7,10 +7,12 @@ import de.xitee.buttonmapper.model.ActionConfig
 class ActionExecutor(context: Context) {
 
     private val flashlight = FlashlightController(context)
+    private val vibration = VibrationController(context)
 
     fun execute(action: ActionConfig): Result<Unit> = runCatching {
         when (action) {
             is ActionConfig.FlashlightToggle -> flashlight.toggle(action.autoOffMillis)
+            is ActionConfig.Vibrate -> vibration.vibrate(action)
         }
     }
 

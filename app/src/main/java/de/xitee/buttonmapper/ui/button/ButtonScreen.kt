@@ -30,6 +30,7 @@ import de.xitee.buttonmapper.ui.components.NavigationListItem
 import de.xitee.buttonmapper.ui.components.SectionHeader
 import de.xitee.buttonmapper.ui.components.SubPageTopBar
 import de.xitee.buttonmapper.ui.components.SwitchListItem
+import de.xitee.buttonmapper.ui.actionLabels
 import de.xitee.buttonmapper.ui.labelRes
 
 /** Settings of one button: general switches and one entry per gesture. */
@@ -81,8 +82,7 @@ fun ButtonScreen(vm: MainViewModel, buttonId: String, onBack: () -> Unit, onOpen
             Gesture.entries.forEach { gesture ->
                 NavigationListItem(
                     headline = stringResource(gesture.labelRes),
-                    supporting = button.actions[gesture]?.let { stringResource(it.labelRes) }
-                        ?: stringResource(R.string.action_none),
+                    supporting = actionLabels(button.actions(gesture)) ?: stringResource(R.string.action_none),
                     onClick = { onOpenGesture(gesture) },
                 )
             }

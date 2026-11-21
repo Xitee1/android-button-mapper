@@ -87,9 +87,6 @@
     <string name="block_also_blocks">Android no longer reacts to this button while Button Mapper is running. Blocks the whole input device \"%1$s\", so these buttons stop working too: %2$s</string>
 
     <!-- Action page -->
-    <string name="action_page_intro">%1$s Choose what happens when you do this with %2$s.</string>
-    <string name="section_action">Action</string>
-    <string name="section_action_settings">Action settings</string>
     <string name="flashlight_auto_off">Turn off automatically</string>
     <string name="flashlight_auto_off_on">After %1$d min</string>
     <string name="flashlight_auto_off_off">Off</string>
@@ -111,4 +108,28 @@
     <string name="devices_empty">Devices appear once the service is connected via Shizuku.</string>
     <string name="device_blocked">Status: blocked (Android receives no buttons from this device)</string>
     <string name="device_not_blocked">Status: not blocked</string>
+
+    <!-- Gesture page, action settings, vibration -->
+    <string name="action_vibrate">Vibrate</string>
+    <string name="vibration_pattern_tick">Tick</string>
+    <string name="vibration_pattern_click">Click</string>
+    <string name="vibration_pattern_double_click">Double click</string>
+    <string name="vibration_pattern_heavy_click">Heavy click</string>
+    <string name="vibration_pattern_custom">Custom</string>
+    <string name="vibration_summary_custom">Custom · %1$d ms · %2$d %%</string>
+    <string name="section_pattern">Pattern</string>
+    <string name="section_custom_vibration">Custom vibration</string>
+    <string name="vibration_duration">Duration: %1$d ms</string>
+    <string name="vibration_strength">Strength: %1$d %%</string>
+    <string name="vibration_strength_unsupported">This device cannot adjust the vibration strength.</string>
+    <string name="vibration_test">Try it</string>
+    <string name="gesture_page_intro">%1$s The actions below run in this order when you do this with %2$s.</string>
+    <string name="section_actions">Actions</string>
+    <string name="actions_empty">No actions yet.</string>
+    <string name="add_action">Add action</string>
+    <string name="action_remove">Remove action</string>
+    <string name="action_no_settings">This action has no settings.</string>
+    <string name="section_auto_off">Auto-off</string>
+    <string name="flashlight_summary_auto_off">Turns off after %1$d min</string>
+    <string name="flashlight_summary_no_auto_off">Stays on until toggled again</string>
 </resources>

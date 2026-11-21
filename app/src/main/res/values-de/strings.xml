@@ -86,9 +86,6 @@
     <string name="block_also_blocks">Android reagiert nicht mehr auf diese Taste, solange Button Mapper läuft. Sperrt das ganze Eingabegerät „%1$s“, damit funktionieren auch diese Tasten nicht mehr: %2$s</string>
 
     <!-- Action page -->
-    <string name="action_page_intro">%1$s Wähle, was passiert, wenn du das mit %2$s machst.</string>
-    <string name="section_action">Aktion</string>
-    <string name="section_action_settings">Einstellungen der Aktion</string>
     <string name="flashlight_auto_off">Automatisch ausschalten</string>
     <string name="flashlight_auto_off_on">Nach %1$d min</string>
     <string name="flashlight_auto_off_off">Aus</string>
@@ -110,4 +107,28 @@
     <string name="devices_empty">Geräte erscheinen, sobald der Dienst über Shizuku verbunden ist.</string>
     <string name="device_blocked">Status: gesperrt (Android empfängt keine Tasten dieses Geräts)</string>
     <string name="device_not_blocked">Status: nicht gesperrt</string>
+
+    <!-- Gesture page, action settings, vibration -->
+    <string name="action_vibrate">Vibrieren</string>
+    <string name="vibration_pattern_tick">Tick</string>
+    <string name="vibration_pattern_click">Klick</string>
+    <string name="vibration_pattern_double_click">Doppelklick</string>
+    <string name="vibration_pattern_heavy_click">Kräftiger Klick</string>
+    <string name="vibration_pattern_custom">Benutzerdefiniert</string>
+    <string name="vibration_summary_custom">Benutzerdefiniert · %1$d ms · %2$d %%</string>
+    <string name="section_pattern">Muster</string>
+    <string name="section_custom_vibration">Eigene Vibration</string>
+    <string name="vibration_duration">Dauer: %1$d ms</string>
+    <string name="vibration_strength">Stärke: %1$d %%</string>
+    <string name="vibration_strength_unsupported">Dieses Gerät kann die Vibrationsstärke nicht anpassen.</string>
+    <string name="vibration_test">Ausprobieren</string>
+    <string name="gesture_page_intro">%1$s Die Aktionen unten laufen in dieser Reihenfolge, wenn du das mit %2$s machst.</string>
+    <string name="section_actions">Aktionen</string>
+    <string name="actions_empty">Noch keine Aktionen.</string>
+    <string name="add_action">Aktion hinzufügen</string>
+    <string name="action_remove">Aktion entfernen</string>
+    <string name="action_no_settings">Diese Aktion hat keine Einstellungen.</string>
+    <string name="section_auto_off">Abschaltung</string>
+    <string name="flashlight_summary_auto_off">Geht nach %1$d min aus</string>
+    <string name="flashlight_summary_no_auto_off">Bleibt an, bis erneut umgeschaltet</string>
 </resources>
