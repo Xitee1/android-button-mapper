@@ -1,4 +1,4 @@
-package de.xitee.buttonmapper.ui
+package de.xitee.buttonmapper.ui.button
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,9 +43,5 @@ fun BlockInfoText(info: BlockInfo) {
         is BlockInfo.AlsoBlocks ->
             stringResource(R.string.block_also_blocks, info.device, info.otherKeys.joinToString(", ")) to true
     }
-    Text(
-        text,
-        style = MaterialTheme.typography.bodySmall,
-        color = if (warning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    if (warning) Text(text, color = MaterialTheme.colorScheme.error) else Text(text)
 }

@@ -27,9 +27,17 @@ val Gesture.descriptionRes: Int
     }
 
 @get:StringRes
+val Gesture.shortLabelRes: Int
+    get() = when (this) {
+        Gesture.SINGLE -> R.string.gesture_single_short
+        Gesture.DOUBLE -> R.string.gesture_double_short
+        Gesture.HOLD -> R.string.gesture_hold_short
+    }
+
+@get:StringRes
 val ActionConfig.labelRes: Int
     get() = when (this) {
-        ActionConfig.FlashlightToggle -> R.string.action_flashlight_toggle
+        is ActionConfig.FlashlightToggle -> R.string.action_flashlight_toggle
     }
 
 @get:StringRes

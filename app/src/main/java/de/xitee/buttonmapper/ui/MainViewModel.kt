@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import de.xitee.buttonmapper.App
 import de.xitee.buttonmapper.input.InputKeyEvent
 import de.xitee.buttonmapper.input.KeyAction
+import de.xitee.buttonmapper.model.ActionConfig
 import de.xitee.buttonmapper.model.AppConfig
-import de.xitee.buttonmapper.model.FlashlightSettings
-import de.xitee.buttonmapper.model.Mapping
+import de.xitee.buttonmapper.model.ButtonConfig
+import de.xitee.buttonmapper.model.Gesture
+import de.xitee.buttonmapper.model.KeyTrigger
 import de.xitee.buttonmapper.model.Timing
 import de.xitee.buttonmapper.service.MapperRuntime
 import de.xitee.buttonmapper.service.MapperService
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/** Activity-scoped view model shared by all screens. */
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = (application as App).repository
@@ -38,6 +41,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Key captured in learn mode, null while waiting. */
     val learnedKey = MutableStateFlow<InputKeyEvent?>(null)
+    private var learnJob: Job? = null
 
     init {
         // Re-start the service when the app is opened and it should be running.
@@ -57,8 +61,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private var learnJob: Job? = null
-
     fun startLearning() {
         learnJob?.cancel()
         learnedKey.value = null
@@ -75,23 +77,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MapperRuntime.learning.value = false
     }
 
-    fun saveMapping(mapping: Mapping) = update { cfg ->
-        val others = cfg.mappings.filterNot { it.id == mapping.id }
-        cfg.copy(mappings = others + mapping)
+    /** Returns the id of the button for [event]: an existing one, or a newly created one. */
+    suspend fun addButton(event: InputKeyEvent): String {
+        var id = ""
+        repository.update { cfg ->
+            val existing = cfg.buttons.firstOrNull {
+                it.trigger.keyName == event.keyName && it.trigger.deviceName == event.deviceName
+            }
+            if (existing != null) {
+                id = existing.id
+                cfg
+            } else {
+                val button = ButtonConfig(trigger = KeyTrigger(event.keyName, event.deviceName))
+                id = button.id
+                cfg.copy(buttons = cfg.buttons + button)
+            }
+        }
+        return id
     }
 
-    fun deleteMapping(id: String) = update { cfg -> cfg.copy(mappings = cfg.mappings.filterNot { it.id == id }) }
+    fun deleteButton(id: String) = update { cfg -> cfg.copy(buttons = cfg.buttons.filterNot { it.id == id }) }
 
-    fun setMappingEnabled(id: String, enabled: Boolean) = update { cfg ->
-        cfg.copy(mappings = cfg.mappings.map { if (it.id == id) it.copy(enabled = enabled) else it })
+    fun setButtonEnabled(id: String, enabled: Boolean) = updateButton(id) { it.copy(enabled = enabled) }
+
+    fun setButtonBlocksSystemFunction(id: String, block: Boolean) =
+        updateButton(id) { it.copy(blockSystemFunction = block) }
+
+    /** Sets the action of a gesture; null removes it. */
+    fun setAction(id: String, gesture: Gesture, action: ActionConfig?) = updateButton(id) {
+        it.copy(actions = if (action == null) it.actions - gesture else it.actions + (gesture to action))
     }
 
     fun setTiming(timing: Timing) = update { it.copy(timing = timing) }
 
-    fun setFlashlightSettings(settings: FlashlightSettings) = update { it.copy(flashlight = settings) }
-
-    fun setMappingBlocksSystemFunction(id: String, block: Boolean) = update { cfg ->
-        cfg.copy(mappings = cfg.mappings.map { if (it.id == id) it.copy(blockSystemFunction = block) else it })
+    private fun updateButton(id: String, transform: (ButtonConfig) -> ButtonConfig) = update { cfg ->
+        cfg.copy(buttons = cfg.buttons.map { if (it.id == id) transform(it) else it })
     }
 
     private fun update(transform: (AppConfig) -> AppConfig) {

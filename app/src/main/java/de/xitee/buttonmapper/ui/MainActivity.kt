@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         setContent {
             ButtonMapperTheme {
-                MainScreen(viewModel)
+                AppNavHost(viewModel)
             }
         }
     }

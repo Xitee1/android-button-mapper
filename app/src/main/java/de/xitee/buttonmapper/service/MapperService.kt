@@ -73,7 +73,7 @@ class MapperService : LifecycleService() {
         wakeLock = getSystemService(PowerManager::class.java)
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ButtonMapper:gesture")
             .apply { setReferenceCounted(false) }
-        actions = ActionExecutor(this, flashlightSettings = { config.flashlight })
+        actions = ActionExecutor(this)
         engine = GestureEngine(
             scope = lifecycleScope,
             timing = { config.timing },
@@ -120,17 +120,15 @@ class MapperService : LifecycleService() {
     }
 
     private fun mappedGestures(event: InputKeyEvent): Set<Gesture> =
-        config.mappings
-            .filter { it.enabled && it.trigger.matches(event.keyName, event.deviceName) }
-            .mapTo(HashSet()) { it.gesture }
+        config.activeButtonsFor(event.keyName, event.deviceName).flatMapTo(HashSet()) { it.actions.keys }
 
     private fun runGesture(event: InputKeyEvent, gesture: Gesture) {
-        config.mappings
-            .filter { it.enabled && it.gesture == gesture && it.trigger.matches(event.keyName, event.deviceName) }
-            .forEach { mapping ->
-                val result = actions.execute(mapping.action)
+        config.activeButtonsFor(event.keyName, event.deviceName)
+            .mapNotNull { it.actions[gesture] }
+            .forEach { action ->
+                val result = actions.execute(action)
                 val gestureLabel = getString(gesture.labelRes)
-                val actionLabel = getString(mapping.action.labelRes)
+                val actionLabel = getString(action.labelRes)
                 val error = result.exceptionOrNull()
                 val msg = if (error == null) {
                     getString(R.string.action_result, event.keyName, gestureLabel, actionLabel)

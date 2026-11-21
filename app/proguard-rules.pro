@@ -9,3 +9,6 @@
     *** Companion;
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+# Navigation Compose resolves enum route arguments by their fully qualified class name.
+-keepnames class de.xitee.buttonmapper.model.Gesture

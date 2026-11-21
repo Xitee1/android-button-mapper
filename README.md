@@ -11,17 +11,24 @@ The UI is available in English and German and follows the system language.
 
 1. Install and start Shizuku.
 2. Open the app, turn on "Mapper active" and grant the Shizuku permission.
-3. "Add mapping" → press the button → choose gesture and action.
-4. Optionally enable "Block normal button function" in the mapping. Android then no longer reacts
-   to the button itself. To do this the app grabs the button's whole input device (`EVIOCGRAB`)
-   while the service is running and the mapping is active. If the device contains other buttons,
-   the app lists them as a warning. Devices containing the power button are never grabbed.
+3. "Add button" → press the button → "Continue".
+4. On the button page, pick a gesture (single press, double press, press and hold) and choose its
+   action. Actions have their own settings, e.g. the flashlight can turn off automatically after a
+   set time.
+5. Optionally enable "Block normal button function" on the button page. Android then no longer
+   reacts to the button itself. To do this the app grabs the button's whole input device
+   (`EVIOCGRAB`) while the service is running and the button is active. If the device contains
+   other buttons, the app lists them as a warning. Devices containing the power button are never
+   grabbed.
 
-Optional: under "Flashlight", the flashlight can turn off automatically after a set time when a
-mapping switched it on.
+Settings (gear icon) holds the detection timing and diagnostics, including all input devices with
+their buttons and whether they are currently blocked.
 
-The "Detected devices" list is informational: it shows all input devices, their buttons and whether
-they are currently blocked.
+## Screens
+
+Home (status + configured buttons) → button page (general switches + one entry per gesture) →
+action page (choose action + its settings). Settings and "Add button" are separate pages. Navigation
+uses Navigation Compose with type-safe routes (`ui/Routes.kt`).
 
 ## Structure
 
@@ -30,13 +37,14 @@ they are currently blocked.
 | `shizuku/EventReaderService` | Runs as a Shizuku user service (shell uid), reads evdev via `poll`, optionally grabs devices |
 | `shizuku/EventReaderClient` | Binds the user service from the app |
 | `gesture/GestureEngine` | Per-button state machine: single / double / hold |
-| `model/Config` | Mappings, actions (`ActionConfig`), timing, flashlight settings; stored as JSON in DataStore |
+| `model/Config` | Buttons (`ButtonConfig`) with one action per gesture, actions with their own settings (`ActionConfig`), timing; stored as JSON in DataStore |
 | `action/ActionExecutor` | Runs actions |
 | `service/MapperService` | Foreground service tying everything together; restarts after boot and app updates |
-| `ui/` | Compose UI; strings in `res/values` (English) and `res/values-de` (German) |
+| `ui/` | Compose UI, one package per page; strings in `res/values` (English) and `res/values-de` (German) |
 
-**Adding an action:** add a subclass to `ActionConfig`, list it in `ActionConfig.all`, handle it in
-`ActionExecutor.execute` and add a label in `ui/Labels.kt` plus both `strings.xml` files.
+**Adding an action:** add a subclass to `ActionConfig` and a default instance to
+`ActionConfig.defaults`, handle it in `ActionExecutor.execute`, add a label in `ui/Labels.kt` plus
+both `strings.xml` files and, if it has settings, a section in `ui/action/ActionSettings.kt`.
 
 ## Build
 
