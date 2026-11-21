@@ -12,9 +12,9 @@ The UI is available in English and German and follows the system language.
 1. Install and start Shizuku.
 2. Open the app, turn on "Mapper active" and grant the Shizuku permission.
 3. "Add button" → press the button → "Continue".
-4. On the button page, pick a gesture (single press, double press, press and hold) and choose its
-   action. Actions have their own settings, e.g. the flashlight can turn off automatically after a
-   set time.
+4. On the button page, pick a gesture (single press, double press, press and hold) and add one or
+   more actions; they run in order. Each action has its own settings page, e.g. auto-off for the
+   flashlight or the pattern for the vibration feedback.
 5. Optionally enable "Block normal button function" on the button page. Android then no longer
    reacts to the button itself. To do this the app grabs the button's whole input device
    (`EVIOCGRAB`) while the service is running and the button is active. If the device contains
@@ -27,7 +27,7 @@ their buttons and whether they are currently blocked.
 ## Screens
 
 Home (status + configured buttons) → button page (general switches + one entry per gesture) →
-action page (choose action + its settings). Settings and "Add button" are separate pages. Navigation
+gesture page (list of actions) → action page (settings of one action). Settings and "Add button" are separate pages. Navigation
 uses Navigation Compose with type-safe routes (`ui/Routes.kt`).
 
 ## Structure
@@ -43,7 +43,7 @@ uses Navigation Compose with type-safe routes (`ui/Routes.kt`).
 | `ui/` | Compose UI, one package per page; strings in `res/values` (English) and `res/values-de` (German) |
 
 **Adding an action:** add a subclass to `ActionConfig` and a default instance to
-`ActionConfig.defaults`, handle it in `ActionExecutor.execute`, add a label in `ui/Labels.kt` plus
+`ActionConfig.defaults`, handle it in `ActionExecutor.execute`, add a label and summary in `ui/Labels.kt` plus
 both `strings.xml` files and, if it has settings, a section in `ui/action/ActionSettings.kt`.
 
 ## Build
