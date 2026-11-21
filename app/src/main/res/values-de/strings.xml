@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notification -->
+    <string name="notification_channel">Hintergrunddienst</string>
+    <string name="notification_waiting_shizuku">Warte auf Shizuku …</string>
+    <string name="notification_monitoring">Tasten werden überwacht</string>
+    <string name="notification_connecting">Verbinde …</string>
+
+    <!-- Shizuku -->
+    <string name="shizuku_not_running">Shizuku läuft nicht (oder ist nicht installiert)</string>
+    <string name="shizuku_no_permission">Shizuku-Berechtigung fehlt</string>
+    <string name="shizuku_ready">Shizuku bereit</string>
+    <string name="shizuku_request_permission">Shizuku-Berechtigung erteilen</string>
+
+    <!-- Gestures and actions -->
+    <string name="gesture_single">Einfach drücken</string>
+    <string name="gesture_double">Doppelt drücken</string>
+    <string name="gesture_hold">Gedrückt halten</string>
+    <string name="gesture_single_desc">Einmal kurz drücken.</string>
+    <string name="gesture_double_desc">Zweimal schnell hintereinander drücken.</string>
+    <string name="gesture_hold_desc">Die Taste einen Moment gedrückt halten.</string>
+    <string name="action_flashlight_toggle">Taschenlampe umschalten</string>
+    <string name="action_result">%1$s · %2$s → %3$s</string>
+    <string name="action_result_error">%1$s · %2$s → %3$s (Fehler: %4$s)</string>
+
+    <!-- Reader errors -->
+    <string name="error_grab_power_key">Gerät „%1$s“ wird nicht gesperrt: es enthält die Power-Taste</string>
+    <string name="error_grab_failed">Gerät „%1$s“ konnte nicht gesperrt werden</string>
+    <string name="error_no_devices">Keine Eingabegeräte lesbar</string>
+    <string name="error_read_failed">Lesefehler: %1$s</string>
+    <string name="error_service_invalid">Shizuku-Dienst ungültig</string>
+    <string name="error_connection_lost">Verbindung zum Shizuku-Dienst verloren</string>
+    <string name="error_bind_failed">Shizuku-Dienst konnte nicht gestartet werden: %1$s</string>
+    <string name="error_no_flash">Keine Kamera mit Blitz gefunden</string>
+    <string name="error_start_failed">Reader konnte nicht gestartet werden: %1$s</string>
+
+    <!-- Status card -->
+    <string name="status_title">Mapper aktiv</string>
+    <string name="status_service_off">Dienst ausgeschaltet</string>
+    <string name="status_service_starting">Dienst startet …</string>
+    <string name="status_waiting_shizuku">Warte auf Shizuku</string>
+    <string name="status_monitoring">Tasten werden überwacht</string>
+    <string name="status_connecting">Verbinde mit Shizuku-Dienst …</string>
+    <string name="status_last_key">Letzte Taste: %1$s</string>
+    <string name="status_last_action">Letzte Aktion: %1$s</string>
+    <string name="status_error">Hinweis: %1$s</string>
+
+    <!-- Sections -->
+    <string name="add_mapping">Zuordnung hinzufügen</string>
+    <string name="section_mappings">Zuordnungen</string>
+    <string name="section_mappings_desc">Was die App bei einer Taste ausführt. Pro Zuordnung legst du außerdem fest, ob Android selbst noch auf die Taste reagiert.</string>
+    <string name="mappings_empty">Noch keine Zuordnungen. Tippe auf „Zuordnung hinzufügen“.</string>
+    <string name="section_flashlight">Taschenlampe</string>
+    <string name="section_flashlight_desc">Gilt, wenn eine Zuordnung die Taschenlampe einschaltet.</string>
+    <string name="section_detection">Erkennung</string>
+    <string name="section_detection_desc">Zeiten für Doppeldruck und Gedrückthalten, gelten für alle Tasten.</string>
+    <string name="section_devices">Erkannte Geräte</string>
+    <string name="section_devices_desc">Nur zur Info: alle Eingabegeräte mit Tasten. Gesperrt wird ein Gerät nur über eine Zuordnung.</string>
+    <string name="devices_empty">Geräte erscheinen, sobald der Dienst über Shizuku verbunden ist.</string>
+
+    <!-- Mapping card -->
+    <string name="mapping_device">Gerät: %1$s</string>
+    <string name="mapping_device_any">Gerät: alle</string>
+    <string name="mapping_active">Zuordnung aktiv</string>
+    <string name="mapping_delete">Löschen</string>
+    <string name="block_system_function">Normale Tastenfunktion blockieren</string>
+
+    <!-- Block info -->
+    <string name="block_needs_device">Nur möglich für eine Taste auf einem bestimmten Eingabegerät.</string>
+    <string name="block_device_unknown">Sperrt das Eingabegerät „%1$s“. Das Gerät ist gerade nicht verbunden.</string>
+    <string name="block_power_key">Nicht möglich: Das Eingabegerät „%1$s“ enthält die Power-Taste.</string>
+    <string name="block_only_this_key">Android reagiert nicht mehr auf diese Taste, solange Button Mapper läuft. Gesperrt wird das Eingabegerät „%1$s“; es enthält nur diese Taste.</string>
+    <string name="block_also_blocks">Android reagiert nicht mehr auf diese Taste, solange Button Mapper läuft. Gesperrt wird das ganze Eingabegerät „%1$s“, damit funktionieren auch diese Tasten nicht mehr: %2$s</string>
+
+    <!-- Flashlight card -->
+    <string name="flashlight_auto_off">Automatisch ausschalten</string>
+    <string name="flashlight_auto_off_after">Ausschalten nach: %1$d min</string>
+
+    <!-- Detection card -->
+    <string name="timing_double_press">Zeitfenster Doppeldruck: %1$d ms</string>
+    <string name="timing_hold">Dauer Gedrückthalten: %1$d ms</string>
+
+    <!-- Device card -->
+    <string name="device_blocked">Status: gesperrt (Android empfängt keine Tasten dieses Geräts)</string>
+    <string name="device_not_blocked">Status: nicht gesperrt</string>
+
+    <!-- Add mapping dialog -->
+    <string name="dialog_title">Neue Zuordnung</string>
+    <string name="dialog_step_button">1. Taste</string>
+    <string name="dialog_step_gesture">2. Wie drückst du sie?</string>
+    <string name="dialog_step_action">3. Was soll passieren?</string>
+    <string name="dialog_step_system">4. Normale Tastenfunktion</string>
+    <string name="dialog_not_connected">Button Mapper ist nicht mit Shizuku verbunden. Schalte zuerst „Mapper aktiv“ ein und erteile die Shizuku-Berechtigung.</string>
+    <string name="dialog_press_button">Drücke jetzt die Taste, die du verwenden möchtest.</string>
+    <string name="dialog_waiting">Warte auf Tastendruck …</string>
+    <string name="dialog_detected_button">Erkannte Taste</string>
+    <string name="dialog_detected_device">Eingabegerät: %1$s</string>
+    <string name="dialog_other_button">Andere Taste verwenden</string>
+    <string name="dialog_duplicate">Für diese Taste gibt es schon eine Zuordnung mit dieser Geste. Beide werden ausgeführt.</string>
+    <string name="dialog_save">Speichern</string>
+    <string name="dialog_cancel">Abbrechen</string>
+</resources>

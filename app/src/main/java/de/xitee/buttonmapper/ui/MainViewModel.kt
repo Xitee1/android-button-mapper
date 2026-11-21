@@ -7,6 +7,7 @@ import de.xitee.buttonmapper.App
 import de.xitee.buttonmapper.input.InputKeyEvent
 import de.xitee.buttonmapper.input.KeyAction
 import de.xitee.buttonmapper.model.AppConfig
+import de.xitee.buttonmapper.model.FlashlightSettings
 import de.xitee.buttonmapper.model.Mapping
 import de.xitee.buttonmapper.model.Timing
 import de.xitee.buttonmapper.service.MapperRuntime
@@ -86,6 +87,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setTiming(timing: Timing) = update { it.copy(timing = timing) }
+
+    fun setFlashlightSettings(settings: FlashlightSettings) = update { it.copy(flashlight = settings) }
 
     fun setMappingBlocksSystemFunction(id: String, block: Boolean) = update { cfg ->
         cfg.copy(mappings = cfg.mappings.map { if (it.id == id) it.copy(blockSystemFunction = block) else it })

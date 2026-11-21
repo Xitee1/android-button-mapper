@@ -15,7 +15,7 @@ import rikka.shizuku.Shizuku
  */
 class EventReaderClient(
     private val listener: IKeyEventListener,
-    private val onStateChanged: (connected: Boolean, error: String?) -> Unit,
+    private val onStateChanged: (connected: Boolean, error: ReaderError?) -> Unit,
 ) {
     private val handler = Handler(Looper.getMainLooper())
     private var reader: IEventReader? = null
@@ -34,7 +34,7 @@ class EventReaderClient(
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
             if (binder == null || !binder.pingBinder()) {
-                onStateChanged(false, "Shizuku-Dienst ungültig")
+                onStateChanged(false, ReaderError(ReaderError.Kind.SERVICE_INVALID))
                 return
             }
             reader = IEventReader.Stub.asInterface(binder)
@@ -44,7 +44,7 @@ class EventReaderClient(
         override fun onServiceDisconnected(name: ComponentName?) {
             reader = null
             bound = false
-            onStateChanged(false, "Verbindung zum Shizuku-Dienst verloren")
+            onStateChanged(false, ReaderError(ReaderError.Kind.CONNECTION_LOST))
             if (wanted) handler.postDelayed({ if (wanted) bind() }, 2000)
         }
     }
@@ -77,7 +77,7 @@ class EventReaderClient(
             bound = true
         } catch (e: Exception) {
             Log.e(TAG, "bindUserService failed", e)
-            onStateChanged(false, "Shizuku-Dienst konnte nicht gestartet werden: ${e.message}")
+            onStateChanged(false, ReaderError(ReaderError.Kind.BIND_FAILED, e.message.orEmpty()))
         }
     }
 
@@ -88,7 +88,7 @@ class EventReaderClient(
             onStateChanged(true, null)
         } catch (e: Exception) {
             Log.e(TAG, "start failed", e)
-            onStateChanged(false, "Reader-Start fehlgeschlagen: ${e.message}")
+            onStateChanged(false, ReaderError(ReaderError.Kind.START_FAILED, e.message.orEmpty()))
         }
     }
 

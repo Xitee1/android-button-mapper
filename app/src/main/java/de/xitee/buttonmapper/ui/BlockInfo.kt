@@ -3,10 +3,12 @@ package de.xitee.buttonmapper.ui
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import de.xitee.buttonmapper.R
 import de.xitee.buttonmapper.input.InputDevice
 import de.xitee.buttonmapper.model.KeyTrigger
 
-/** What "block system function" means for a trigger. Blocking always grabs the whole input device. */
+/** What "block normal button function" means for a trigger. Blocking always grabs the whole input device. */
 sealed interface BlockInfo {
     val possible: Boolean
 
@@ -34,17 +36,12 @@ fun blockInfo(trigger: KeyTrigger, devices: List<InputDevice>): BlockInfo {
 @Composable
 fun BlockInfoText(info: BlockInfo) {
     val (text, warning) = when (info) {
-        BlockInfo.NeedsDevice ->
-            "Nur möglich, wenn die Zuordnung auf ein Gerät beschränkt ist." to false
-        is BlockInfo.DeviceUnknown ->
-            "Sperrt das Gerät „${info.device}“. Das Gerät ist gerade nicht verbunden." to false
-        is BlockInfo.PowerKey ->
-            "Nicht möglich: Das Gerät „${info.device}“ enthält die Power-Taste." to true
-        is BlockInfo.OnlyThisKey ->
-            "Sperrt das Gerät „${info.device}“. Es enthält nur diese Taste." to false
+        BlockInfo.NeedsDevice -> stringResource(R.string.block_needs_device) to false
+        is BlockInfo.DeviceUnknown -> stringResource(R.string.block_device_unknown, info.device) to false
+        is BlockInfo.PowerKey -> stringResource(R.string.block_power_key, info.device) to true
+        is BlockInfo.OnlyThisKey -> stringResource(R.string.block_only_this_key, info.device) to false
         is BlockInfo.AlsoBlocks ->
-            ("Sperrt das ganze Gerät „${info.device}“. Damit reagiert Android auch auf diese Tasten nicht mehr: " +
-                info.otherKeys.joinToString(", ")) to true
+            stringResource(R.string.block_also_blocks, info.device, info.otherKeys.joinToString(", ")) to true
     }
     Text(
         text,

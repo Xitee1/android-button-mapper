@@ -69,9 +69,9 @@ private class EvdevReader(
                 if (d.name in grabNames) {
                     when {
                         // Grabbing the power key device would make the phone unusable.
-                        "KEY_POWER" in d.keys -> report { onError("Gerät ${d.name} wird nicht gesperrt: es enthält die Power-Taste") }
+                        "KEY_POWER" in d.keys -> report { onError(ReaderError.Kind.GRAB_POWER_KEY.name, d.name) }
                         grab(fd) -> grabbed += d.path
-                        else -> report { onError("Gerät ${d.name} konnte nicht gesperrt werden") }
+                        else -> report { onError(ReaderError.Kind.GRAB_FAILED.name, d.name) }
                     }
                 }
             } catch (e: ErrnoException) {
@@ -84,7 +84,7 @@ private class EvdevReader(
             }.toTypedArray())
         }
         if (open.isEmpty()) {
-            report { onError("Keine Eingabegeräte lesbar") }
+            report { onError(ReaderError.Kind.NO_DEVICES.name, "") }
             return
         }
 
@@ -139,7 +139,7 @@ private class EvdevReader(
             }
         } catch (t: Throwable) {
             Log.e(TAG, "Reader failed", t)
-            report { onError("Lesefehler: ${t.message}") }
+            report { onError(ReaderError.Kind.READ_FAILED.name, t.message.orEmpty()) }
         } finally {
             // Closing the fd also releases an EVIOCGRAB grab.
             open.keys.forEach(::closeQuietly)

@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -32,10 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.xitee.buttonmapper.R
 import de.xitee.buttonmapper.input.InputDevice
+import de.xitee.buttonmapper.model.FlashlightSettings
 import de.xitee.buttonmapper.model.Mapping
 import de.xitee.buttonmapper.model.Timing
 import de.xitee.buttonmapper.shizuku.ShizukuStatus
@@ -51,14 +55,15 @@ fun MainScreen(vm: MainViewModel) {
     val lastEvent by vm.lastEvent.collectAsStateWithLifecycle()
     val lastAction by vm.lastAction.collectAsStateWithLifecycle()
     val lastError by vm.lastError.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var showAddDialog by remember { mutableStateOf(false) }
 
     val cfg = config ?: return
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Button Mapper") }) },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { showAddDialog = true }) { Text("Zuordnung hinzufügen") }
+            ExtendedFloatingActionButton(onClick = { showAddDialog = true }) { Text(stringResource(R.string.add_mapping)) }
         },
     ) { padding ->
         LazyColumn(
@@ -74,21 +79,15 @@ fun MainScreen(vm: MainViewModel) {
                     connected = connected,
                     lastEvent = lastEvent?.let { "${it.keyName} ${it.action} · ${it.deviceName}" },
                     lastAction = lastAction,
-                    lastError = lastError,
+                    lastError = lastError?.message(context),
                     onRequestPermission = vm::requestShizukuPermission,
                     onServiceEnabled = vm::setServiceEnabled,
                 )
             }
 
-            item {
-                SectionTitle(
-                    "Zuordnungen",
-                    "Was die App bei einer Taste ausführt. Pro Zuordnung legst du außerdem fest, " +
-                        "ob Android selbst noch auf die Taste reagiert.",
-                )
-            }
+            item { SectionTitle(R.string.section_mappings, R.string.section_mappings_desc) }
             if (cfg.mappings.isEmpty()) {
-                item { Hint("Noch keine Zuordnungen. Tippe auf „Zuordnung hinzufügen“.") }
+                item { Hint(stringResource(R.string.mappings_empty)) }
             }
             items(cfg.mappings, key = { it.id }) { mapping ->
                 MappingCard(
@@ -100,17 +99,15 @@ fun MainScreen(vm: MainViewModel) {
                 )
             }
 
-            item { SectionTitle("Erkennung", "Zeiten für Doppeldruck und Gedrückthalten, gelten für alle Tasten.") }
+            item { SectionTitle(R.string.section_flashlight, R.string.section_flashlight_desc) }
+            item { FlashlightCard(cfg.flashlight, vm::setFlashlightSettings) }
+
+            item { SectionTitle(R.string.section_detection, R.string.section_detection_desc) }
             item { TimingCard(cfg.timing, vm::setTiming) }
 
-            item {
-                SectionTitle(
-                    "Erkannte Geräte",
-                    "Nur zur Info: alle Eingabegeräte mit Tasten. Gesperrt wird ein Gerät nur über eine Zuordnung.",
-                )
-            }
+            item { SectionTitle(R.string.section_devices, R.string.section_devices_desc) }
             if (devices.isEmpty()) {
-                item { Hint("Geräte erscheinen, sobald der Dienst über Shizuku verbunden ist.") }
+                item { Hint(stringResource(R.string.devices_empty)) }
             }
             items(devices.filter { it.keys.isNotEmpty() }, key = { it.path }) { device ->
                 DeviceCard(device)
@@ -119,19 +116,15 @@ fun MainScreen(vm: MainViewModel) {
     }
 
     if (showAddDialog) {
-        AddMappingDialog(
-            vm = vm,
-            config = cfg,
-            onDismiss = { showAddDialog = false },
-        )
+        AddMappingDialog(vm = vm, config = cfg, onDismiss = { showAddDialog = false })
     }
 }
 
 @Composable
-private fun SectionTitle(text: String, description: String) {
+private fun SectionTitle(title: Int, description: Int) {
     Column(Modifier.padding(top = 8.dp)) {
-        Text(text, style = MaterialTheme.typography.titleMedium)
-        Hint(description)
+        Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+        Hint(stringResource(description))
     }
 }
 
@@ -154,6 +147,7 @@ private fun StatusCard(
 ) {
     val ok = shizuku == ShizukuStatus.READY && connected
     Card(
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (ok) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
         ),
@@ -161,29 +155,35 @@ private fun StatusCard(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Mapper aktiv", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.status_title), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        when {
-                            !serviceEnabled -> "Dienst ausgeschaltet"
-                            !running -> "Dienst startet …"
-                            shizuku != ShizukuStatus.READY -> "Warte auf Shizuku"
-                            connected -> "Tasten werden überwacht"
-                            else -> "Verbinde mit Shizuku-Dienst …"
-                        },
+                        stringResource(
+                            when {
+                                !serviceEnabled -> R.string.status_service_off
+                                !running -> R.string.status_service_starting
+                                shizuku != ShizukuStatus.READY -> R.string.status_waiting_shizuku
+                                connected -> R.string.status_monitoring
+                                else -> R.string.status_connecting
+                            },
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 Switch(checked = serviceEnabled, onCheckedChange = onServiceEnabled)
             }
             HorizontalDivider()
-            Text(shizuku.label, style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(shizuku.labelRes), style = MaterialTheme.typography.bodyMedium)
             if (shizuku == ShizukuStatus.NO_PERMISSION) {
-                Button(onClick = onRequestPermission) { Text("Shizuku-Berechtigung anfordern") }
+                Button(onClick = onRequestPermission) { Text(stringResource(R.string.shizuku_request_permission)) }
             }
-            lastEvent?.let { Mono("Letzte Taste: $it") }
-            lastAction?.let { Mono("Letzte Aktion: $it") }
+            lastEvent?.let { Mono(stringResource(R.string.status_last_key, it)) }
+            lastAction?.let { Mono(stringResource(R.string.status_last_action, it)) }
             lastError?.let {
-                Text("Hinweis: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.status_error, it),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
         }
     }
@@ -202,24 +202,28 @@ private fun MappingCard(
     onBlock: (Boolean) -> Unit,
     onDelete: () -> Unit,
 ) {
-    Card {
+    Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(mapping.trigger.keyName, style = MaterialTheme.typography.titleSmall, fontFamily = FontFamily.Monospace)
                     Text(
-                        mapping.trigger.deviceName?.let { "Gerät: $it" } ?: "Gerät: alle",
+                        mapping.trigger.deviceName?.let { stringResource(R.string.mapping_device, it) }
+                            ?: stringResource(R.string.mapping_device_any),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Text("${mapping.gesture.label} → ${mapping.action.label}", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "${stringResource(mapping.gesture.labelRes)} → ${stringResource(mapping.action.labelRes)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
-                TextButton(onClick = onDelete) { Text("Löschen") }
+                TextButton(onClick = onDelete) { Text(stringResource(R.string.mapping_delete)) }
             }
             HorizontalDivider()
-            SwitchRow("Zuordnung aktiv", mapping.enabled, enabled = true, onEnabled)
+            SwitchRow(stringResource(R.string.mapping_active), mapping.enabled, enabled = true, onEnabled)
             SwitchRow(
-                "Systemfunktion der Taste blockieren",
+                stringResource(R.string.block_system_function),
                 mapping.blockSystemFunction,
                 enabled = blockInfo.possible || mapping.blockSystemFunction,
                 onBlock,
@@ -230,7 +234,7 @@ private fun MappingCard(
 }
 
 @Composable
-private fun SwitchRow(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
+fun SwitchRow(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
         Switch(checked = checked, enabled = enabled, onCheckedChange = onChange)
@@ -238,23 +242,58 @@ private fun SwitchRow(label: String, checked: Boolean, enabled: Boolean, onChang
 }
 
 @Composable
-private fun TimingCard(timing: Timing, onChange: (Timing) -> Unit) {
-    Card {
+private fun FlashlightCard(settings: FlashlightSettings, onChange: (FlashlightSettings) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            MsSlider("Zeitfenster Doppeldruck", timing.doublePressMs, 150f..800f) { onChange(timing.copy(doublePressMs = it)) }
-            Spacer(Modifier.width(8.dp))
-            MsSlider("Dauer Gedrückthalten", timing.holdMs, 250f..1500f) { onChange(timing.copy(holdMs = it)) }
+            SwitchRow(stringResource(R.string.flashlight_auto_off), settings.autoOffEnabled, enabled = true) {
+                onChange(settings.copy(autoOffEnabled = it))
+            }
+            if (settings.autoOffEnabled) {
+                ValueSlider(
+                    label = { stringResource(R.string.flashlight_auto_off_after, it) },
+                    value = settings.autoOffMinutes.toLong(),
+                    range = 1f..60f,
+                    step = 1,
+                ) { onChange(settings.copy(autoOffMinutes = it.toInt())) }
+            }
         }
     }
 }
 
 @Composable
-private fun MsSlider(label: String, value: Long, range: ClosedFloatingPointRange<Float>, onChange: (Long) -> Unit) {
+private fun TimingCard(timing: Timing, onChange: (Timing) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            ValueSlider(
+                label = { stringResource(R.string.timing_double_press, it) },
+                value = timing.doublePressMs,
+                range = 150f..800f,
+                step = 10,
+            ) { onChange(timing.copy(doublePressMs = it)) }
+            Spacer(Modifier.height(8.dp))
+            ValueSlider(
+                label = { stringResource(R.string.timing_hold, it) },
+                value = timing.holdMs,
+                range = 250f..1500f,
+                step = 10,
+            ) { onChange(timing.copy(holdMs = it)) }
+        }
+    }
+}
+
+@Composable
+private fun ValueSlider(
+    label: @Composable (Long) -> String,
+    value: Long,
+    range: ClosedFloatingPointRange<Float>,
+    step: Int,
+    onChange: (Long) -> Unit,
+) {
     var current by remember(value) { mutableFloatStateOf(value.toFloat()) }
-    Text("$label: ${current.toLong()} ms", style = MaterialTheme.typography.bodyMedium)
+    Text(label(current.toLong()), style = MaterialTheme.typography.bodyMedium)
     Slider(
         value = current,
-        onValueChange = { current = (it / 10).toInt() * 10f },
+        onValueChange = { current = (Math.round(it / step) * step).toFloat() },
         onValueChangeFinished = { onChange(current.toLong()) },
         valueRange = range,
     )
@@ -262,7 +301,7 @@ private fun MsSlider(label: String, value: Long, range: ClosedFloatingPointRange
 
 @Composable
 private fun DeviceCard(device: InputDevice) {
-    Card {
+    Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(device.name, style = MaterialTheme.typography.titleSmall)
             Text(device.path, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
@@ -272,8 +311,7 @@ private fun DeviceCard(device: InputDevice) {
                 fontFamily = FontFamily.Monospace,
             )
             Text(
-                if (device.grabbed) "Status: gesperrt (Android empfängt keine Tasten dieses Geräts)"
-                else "Status: nicht gesperrt",
+                stringResource(if (device.grabbed) R.string.device_blocked else R.string.device_not_blocked),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -2,6 +2,7 @@ package de.xitee.buttonmapper.service
 
 import de.xitee.buttonmapper.input.InputDevice
 import de.xitee.buttonmapper.input.InputKeyEvent
+import de.xitee.buttonmapper.shizuku.ReaderError
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 object MapperRuntime {
     val serviceRunning = MutableStateFlow(false)
     val readerConnected = MutableStateFlow(false)
-    val lastError = MutableStateFlow<String?>(null)
+    val lastError = MutableStateFlow<ReaderError?>(null)
     val devices = MutableStateFlow<List<InputDevice>>(emptyList())
     val lastEvent = MutableStateFlow<InputKeyEvent?>(null)
     val lastActionMessage = MutableStateFlow<String?>(null)

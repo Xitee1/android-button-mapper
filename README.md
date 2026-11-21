@@ -1,36 +1,42 @@
 # Button Mapper
 
-Kleine Android-App, die Hardware-Tasten per **Shizuku** direkt aus `/dev/input/event*` liest und
-Gesten (einfach, doppelt, gedrückt halten) auf Aktionen legt. Ursprüngliches Ziel: die
-Assistant-Taste (`KEY_ASSISTANT` auf `gpio-keys`) des Motorola Edge 60 Pro schaltet die Taschenlampe.
+Small Android app that reads hardware buttons directly from `/dev/input/event*` via
+**[Shizuku](https://shizuku.rikka.app/)** and maps gestures (single press, double press, press and hold)
+to actions. Original goal: the Assistant button (`KEY_ASSISTANT` on `gpio-keys`) of the
+Motorola Edge 60 Pro toggles the flashlight.
 
-## Einrichtung
+The UI is available in English and German and follows the system language.
 
-1. [Shizuku](https://shizuku.rikka.app/) installieren und starten.
-2. App öffnen, „Mapper aktiv“ einschalten, Shizuku-Berechtigung erteilen.
-3. „Zuordnung hinzufügen“ → Taste drücken → Geste und Aktion wählen.
-4. Optional in der Zuordnung „Systemfunktion der Taste blockieren“ einschalten. Dann reagiert Android
-   nicht mehr selbst auf die Taste. Technisch sperrt die App dafür das ganze Eingabegerät der Taste
-   (EVIOCGRAB), solange der Dienst läuft und die Zuordnung aktiv ist. Enthält das Gerät weitere
-   Tasten, zeigt die App sie als Warnung an. Geräte mit Power-Taste werden nie gesperrt.
+## Setup
 
-Die Liste „Erkannte Geräte“ dient nur zur Info: Sie zeigt alle Eingabegeräte, ihre Tasten und ob sie
-gerade gesperrt sind.
+1. Install and start Shizuku.
+2. Open the app, turn on "Mapper active" and grant the Shizuku permission.
+3. "Add mapping" → press the button → choose gesture and action.
+4. Optionally enable "Block normal button function" in the mapping. Android then no longer reacts
+   to the button itself. To do this the app grabs the button's whole input device (`EVIOCGRAB`)
+   while the service is running and the mapping is active. If the device contains other buttons,
+   the app lists them as a warning. Devices containing the power button are never grabbed.
 
-## Aufbau
+Optional: under "Flashlight", the flashlight can turn off automatically after a set time when a
+mapping switched it on.
 
-| Paket | Aufgabe |
+The "Detected devices" list is informational: it shows all input devices, their buttons and whether
+they are currently blocked.
+
+## Structure
+
+| Package | Purpose |
 |---|---|
-| `shizuku/EventReaderService` | Läuft als Shizuku-User-Service (Shell-UID), liest evdev per `poll`, optional mit Grab |
-| `shizuku/EventReaderClient` | Bindet den User-Service aus der App |
-| `gesture/GestureEngine` | Zustandsautomat je Taste: einfach / doppelt / halten |
-| `model/Config` | Zuordnungen, Aktionen (`ActionConfig`), Zeiten; als JSON in DataStore |
-| `action/ActionExecutor` | Führt Aktionen aus |
-| `service/MapperService` | Vordergrunddienst, verbindet alles; startet nach Boot/Update neu |
-| `ui/` | Compose-Oberfläche |
+| `shizuku/EventReaderService` | Runs as a Shizuku user service (shell uid), reads evdev via `poll`, optionally grabs devices |
+| `shizuku/EventReaderClient` | Binds the user service from the app |
+| `gesture/GestureEngine` | Per-button state machine: single / double / hold |
+| `model/Config` | Mappings, actions (`ActionConfig`), timing, flashlight settings; stored as JSON in DataStore |
+| `action/ActionExecutor` | Runs actions |
+| `service/MapperService` | Foreground service tying everything together; restarts after boot and app updates |
+| `ui/` | Compose UI; strings in `res/values` (English) and `res/values-de` (German) |
 
-**Neue Aktion hinzufügen:** Unterklasse in `ActionConfig` anlegen, in `ActionConfig.all` eintragen und
-im `when` von `ActionExecutor.execute` behandeln.
+**Adding an action:** add a subclass to `ActionConfig`, list it in `ActionConfig.all`, handle it in
+`ActionExecutor.execute` and add a label in `ui/Labels.kt` plus both `strings.xml` files.
 
 ## Build
 
@@ -38,6 +44,6 @@ im `when` von `ActionExecutor.execute` behandeln.
 ./gradlew :app:assembleDebug
 ```
 
-Release-Signatur: lokal über `keystore.properties` (nicht im Repo), in GitHub Actions über die
-Secrets `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`.
-Jeder Push auf `main` baut eine signierte APK als Artefakt, ein Tag `v*` erzeugt zusätzlich ein Release.
+Release signing: locally via `keystore.properties` (not in the repo); in GitHub Actions via the
+secrets `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`.
+Every push to `main` builds a signed APK as a workflow artifact; a `v*` tag also creates a release.

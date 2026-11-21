@@ -5,13 +5,13 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 
 @Serializable
-enum class Gesture(val label: String) {
-    @SerialName("single") SINGLE("Einfach drücken"),
-    @SerialName("double") DOUBLE("Doppelt drücken"),
-    @SerialName("hold") HOLD("Gedrückt halten"),
+enum class Gesture {
+    @SerialName("single") SINGLE,
+    @SerialName("double") DOUBLE,
+    @SerialName("hold") HOLD,
 }
 
-/** Which physical key triggers a mapping. [deviceName] = null matches the key on any device. */
+/** Which physical key triggers a mapping. [deviceName] = null matches the key on any input device. */
 @Serializable
 data class KeyTrigger(
     val keyName: String,
@@ -22,18 +22,15 @@ data class KeyTrigger(
 }
 
 /**
- * An action a mapping can run. New actions: add a subclass here, list it in [ActionConfig.all]
- * and handle it in [de.xitee.buttonmapper.action.ActionExecutor].
+ * An action a mapping can run. To add an action: add a subclass here, list it in [ActionConfig.all],
+ * handle it in [de.xitee.buttonmapper.action.ActionExecutor] and give it a label in `ui/Labels.kt`.
  */
 @Serializable
 sealed interface ActionConfig {
-    val label: String
 
     @Serializable
     @SerialName("flashlight_toggle")
-    data object FlashlightToggle : ActionConfig {
-        override val label get() = "Taschenlampe umschalten"
-    }
+    data object FlashlightToggle : ActionConfig
 
     companion object {
         /** Actions offered in the UI. */
@@ -64,10 +61,20 @@ data class Timing(
 )
 
 @Serializable
+data class FlashlightSettings(
+    /** Turn the flashlight off automatically after [autoOffMinutes] when the app switched it on. */
+    val autoOffEnabled: Boolean = false,
+    val autoOffMinutes: Int = 15,
+) {
+    val autoOffMillis: Long? get() = if (autoOffEnabled) autoOffMinutes * 60_000L else null
+}
+
+@Serializable
 data class AppConfig(
     val serviceEnabled: Boolean = false,
     val mappings: List<Mapping> = emptyList(),
     val timing: Timing = Timing(),
+    val flashlight: FlashlightSettings = FlashlightSettings(),
 ) {
     /** Devices to grab exclusively: those of all active mappings that block the system function. */
     val devicesToGrab: Set<String>

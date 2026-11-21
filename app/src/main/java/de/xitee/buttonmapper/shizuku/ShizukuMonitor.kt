@@ -6,11 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import rikka.shizuku.Shizuku
 
-enum class ShizukuStatus(val label: String) {
-    NOT_RUNNING("Shizuku läuft nicht (oder ist nicht installiert)"),
-    NO_PERMISSION("Shizuku-Berechtigung fehlt"),
-    READY("Shizuku bereit"),
-}
+enum class ShizukuStatus { NOT_RUNNING, NO_PERMISSION, READY }
 
 /** Process-wide Shizuku state. Call [init] once from the Application. */
 object ShizukuMonitor {

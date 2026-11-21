@@ -28,9 +28,11 @@ import de.xitee.buttonmapper.model.AppConfig
 import de.xitee.buttonmapper.model.Gesture
 import de.xitee.buttonmapper.shizuku.EventReaderClient
 import de.xitee.buttonmapper.shizuku.IKeyEventListener
+import de.xitee.buttonmapper.shizuku.ReaderError
 import de.xitee.buttonmapper.shizuku.ShizukuMonitor
 import de.xitee.buttonmapper.shizuku.ShizukuStatus
 import de.xitee.buttonmapper.ui.MainActivity
+import de.xitee.buttonmapper.ui.labelRes
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -58,8 +60,8 @@ class MapperService : LifecycleService() {
             MapperRuntime.devices.value = devices.mapNotNull(InputDevice::parse)
         }
 
-        override fun onError(message: String) {
-            MapperRuntime.lastError.value = message
+        override fun onError(kind: String, detail: String) {
+            MapperRuntime.lastError.value = ReaderError.fromWire(kind, detail)
         }
     }
 
@@ -71,7 +73,7 @@ class MapperService : LifecycleService() {
         wakeLock = getSystemService(PowerManager::class.java)
             .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ButtonMapper:gesture")
             .apply { setReferenceCounted(false) }
-        actions = ActionExecutor(this)
+        actions = ActionExecutor(this, flashlightSettings = { config.flashlight })
         engine = GestureEngine(
             scope = lifecycleScope,
             timing = { config.timing },
@@ -127,8 +129,14 @@ class MapperService : LifecycleService() {
             .filter { it.enabled && it.gesture == gesture && it.trigger.matches(event.keyName, event.deviceName) }
             .forEach { mapping ->
                 val result = actions.execute(mapping.action)
-                val msg = "${event.keyName} · ${gesture.label} → ${mapping.action.label}" +
-                    (result.exceptionOrNull()?.let { " (Fehler: ${it.message})" } ?: "")
+                val gestureLabel = getString(gesture.labelRes)
+                val actionLabel = getString(mapping.action.labelRes)
+                val error = result.exceptionOrNull()
+                val msg = if (error == null) {
+                    getString(R.string.action_result, event.keyName, gestureLabel, actionLabel)
+                } else {
+                    getString(R.string.action_result_error, event.keyName, gestureLabel, actionLabel, error.message.orEmpty())
+                }
                 Log.i(TAG, msg)
                 MapperRuntime.lastActionMessage.value = msg
             }
@@ -137,7 +145,7 @@ class MapperService : LifecycleService() {
     private fun startInForeground() {
         val nm = getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "Hintergrunddienst", NotificationManager.IMPORTANCE_MIN),
+            NotificationChannel(CHANNEL_ID, getString(R.string.notification_channel), NotificationManager.IMPORTANCE_MIN),
         )
         ServiceCompat.startForeground(
             this, NOTIFICATION_ID, buildNotification(),
@@ -151,9 +159,9 @@ class MapperService : LifecycleService() {
 
     private fun buildNotification(): Notification {
         val text = when {
-            ShizukuMonitor.status.value != ShizukuStatus.READY -> "Warte auf Shizuku …"
-            MapperRuntime.readerConnected.value -> "Tasten werden überwacht"
-            else -> "Verbinde …"
+            ShizukuMonitor.status.value != ShizukuStatus.READY -> getString(R.string.notification_waiting_shizuku)
+            MapperRuntime.readerConnected.value -> getString(R.string.notification_monitoring)
+            else -> getString(R.string.notification_connecting)
         }
         val open = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java),
@@ -161,7 +169,7 @@ class MapperService : LifecycleService() {
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_button)
-            .setContentTitle("Button Mapper")
+            .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setContentIntent(open)
             .setOngoing(true)

@@ -7,6 +7,6 @@ oneway interface IKeyEventListener {
     /** Device list, one entry per device: "path\tname\tgrabbed(0|1)\tKEY_A,KEY_B,...". */
     void onDevices(in String[] devices);
 
-    /** Reader stopped or hit a problem. */
-    void onError(String message);
+    /** Reader stopped or hit a problem. [kind] is a ReaderError.Kind name. */
+    void onError(String kind, String detail);
 }

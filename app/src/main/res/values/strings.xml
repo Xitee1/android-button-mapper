@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Button Mapper</string>
+
+    <!-- Notification -->
+    <string name="notification_channel">Background service</string>
+    <string name="notification_waiting_shizuku">Waiting for Shizuku …</string>
+    <string name="notification_monitoring">Monitoring buttons</string>
+    <string name="notification_connecting">Connecting …</string>
+
+    <!-- Shizuku -->
+    <string name="shizuku_not_running">Shizuku is not running (or not installed)</string>
+    <string name="shizuku_no_permission">Shizuku permission missing</string>
+    <string name="shizuku_ready">Shizuku ready</string>
+    <string name="shizuku_request_permission">Grant Shizuku permission</string>
+
+    <!-- Gestures and actions -->
+    <string name="gesture_single">Single press</string>
+    <string name="gesture_double">Double press</string>
+    <string name="gesture_hold">Press and hold</string>
+    <string name="gesture_single_desc">Press briefly once.</string>
+    <string name="gesture_double_desc">Press twice in quick succession.</string>
+    <string name="gesture_hold_desc">Keep the button pressed for a moment.</string>
+    <string name="action_flashlight_toggle">Toggle flashlight</string>
+    <string name="action_result">%1$s · %2$s → %3$s</string>
+    <string name="action_result_error">%1$s · %2$s → %3$s (error: %4$s)</string>
+
+    <!-- Reader errors -->
+    <string name="error_grab_power_key">Device \"%1$s\" is not blocked: it contains the power button</string>
+    <string name="error_grab_failed">Device \"%1$s\" could not be blocked</string>
+    <string name="error_no_devices">No input devices readable</string>
+    <string name="error_read_failed">Read error: %1$s</string>
+    <string name="error_service_invalid">Shizuku service invalid</string>
+    <string name="error_connection_lost">Connection to the Shizuku service lost</string>
+    <string name="error_bind_failed">Shizuku service could not be started: %1$s</string>
+    <string name="error_no_flash">No camera with flash found</string>
+    <string name="error_start_failed">Reader could not be started: %1$s</string>
+
+    <!-- Status card -->
+    <string name="status_title">Mapper active</string>
+    <string name="status_service_off">Service off</string>
+    <string name="status_service_starting">Service starting …</string>
+    <string name="status_waiting_shizuku">Waiting for Shizuku</string>
+    <string name="status_monitoring">Monitoring buttons</string>
+    <string name="status_connecting">Connecting to the Shizuku service …</string>
+    <string name="status_last_key">Last button: %1$s</string>
+    <string name="status_last_action">Last action: %1$s</string>
+    <string name="status_error">Note: %1$s</string>
+
+    <!-- Sections -->
+    <string name="add_mapping">Add mapping</string>
+    <string name="section_mappings">Mappings</string>
+    <string name="section_mappings_desc">What the app does when you press a button. For each mapping you also decide whether Android still reacts to the button.</string>
+    <string name="mappings_empty">No mappings yet. Tap \"Add mapping\".</string>
+    <string name="section_flashlight">Flashlight</string>
+    <string name="section_flashlight_desc">Applies when a mapping turns the flashlight on.</string>
+    <string name="section_detection">Detection</string>
+    <string name="section_detection_desc">Timing for double press and press and hold, applies to all buttons.</string>
+    <string name="section_devices">Detected devices</string>
+    <string name="section_devices_desc">For information only: all input devices with buttons. A device is only blocked through a mapping.</string>
+    <string name="devices_empty">Devices appear once the service is connected via Shizuku.</string>
+
+    <!-- Mapping card -->
+    <string name="mapping_device">Device: %1$s</string>
+    <string name="mapping_device_any">Device: any</string>
+    <string name="mapping_active">Mapping active</string>
+    <string name="mapping_delete">Delete</string>
+    <string name="block_system_function">Block normal button function</string>
+
+    <!-- Block info -->
+    <string name="block_needs_device">Only possible for a button on a specific input device.</string>
+    <string name="block_device_unknown">Blocks the input device \"%1$s\". The device is currently not connected.</string>
+    <string name="block_power_key">Not possible: the input device \"%1$s\" contains the power button.</string>
+    <string name="block_only_this_key">Android no longer reacts to this button while Button Mapper is running. The input device \"%1$s\" is blocked; it only contains this button.</string>
+    <string name="block_also_blocks">Android no longer reacts to this button while Button Mapper is running. The whole input device \"%1$s\" is blocked, so these buttons stop working too: %2$s</string>
+
+    <!-- Flashlight card -->
+    <string name="flashlight_auto_off">Turn off automatically</string>
+    <string name="flashlight_auto_off_after">Turn off after: %1$d min</string>
+
+    <!-- Detection card -->
+    <string name="timing_double_press">Double press window: %1$d ms</string>
+    <string name="timing_hold">Hold duration: %1$d ms</string>
+
+    <!-- Device card -->
+    <string name="device_blocked">Status: blocked (Android receives no buttons from this device)</string>
+    <string name="device_not_blocked">Status: not blocked</string>
+
+    <!-- Add mapping dialog -->
+    <string name="dialog_title">New mapping</string>
+    <string name="dialog_step_button">1. Button</string>
+    <string name="dialog_step_gesture">2. How do you press it?</string>
+    <string name="dialog_step_action">3. What should happen?</string>
+    <string name="dialog_step_system">4. Normal button function</string>
+    <string name="dialog_not_connected">Button Mapper is not connected to Shizuku. Turn on \"Mapper active\" and grant the Shizuku permission first.</string>
+    <string name="dialog_press_button">Press the button you want to use now.</string>
+    <string name="dialog_waiting">Waiting for a button press …</string>
+    <string name="dialog_detected_button">Detected button</string>
+    <string name="dialog_detected_device">Input device: %1$s</string>
+    <string name="dialog_other_button">Use a different button</string>
+    <string name="dialog_duplicate">This button already has a mapping for this gesture. Both will run.</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+</resources>
