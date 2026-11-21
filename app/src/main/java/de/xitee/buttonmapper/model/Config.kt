@@ -48,6 +48,11 @@ data class Mapping(
     val gesture: Gesture,
     val action: ActionConfig,
     val enabled: Boolean = true,
+    /**
+     * Android should no longer react to the key. Implemented by grabbing the whole input device
+     * of [KeyTrigger.deviceName], so it only works for device-specific triggers.
+     */
+    val blockSystemFunction: Boolean = false,
 )
 
 @Serializable
@@ -63,6 +68,10 @@ data class AppConfig(
     val serviceEnabled: Boolean = false,
     val mappings: List<Mapping> = emptyList(),
     val timing: Timing = Timing(),
-    /** Devices that are grabbed exclusively, i.e. Android no longer receives their keys. */
-    val exclusiveDevices: Set<String> = emptySet(),
-)
+) {
+    /** Devices to grab exclusively: those of all active mappings that block the system function. */
+    val devicesToGrab: Set<String>
+        get() = mappings
+            .filter { it.enabled && it.blockSystemFunction }
+            .mapNotNullTo(HashSet()) { it.trigger.deviceName }
+}

@@ -80,31 +80,40 @@ fun MainScreen(vm: MainViewModel) {
                 )
             }
 
-            item { SectionTitle("Zuordnungen") }
+            item {
+                SectionTitle(
+                    "Zuordnungen",
+                    "Was die App bei einer Taste ausführt. Pro Zuordnung legst du außerdem fest, " +
+                        "ob Android selbst noch auf die Taste reagiert.",
+                )
+            }
             if (cfg.mappings.isEmpty()) {
                 item { Hint("Noch keine Zuordnungen. Tippe auf „Zuordnung hinzufügen“.") }
             }
             items(cfg.mappings, key = { it.id }) { mapping ->
                 MappingCard(
                     mapping = mapping,
+                    blockInfo = blockInfo(mapping.trigger, devices),
                     onEnabled = { vm.setMappingEnabled(mapping.id, it) },
+                    onBlock = { vm.setMappingBlocksSystemFunction(mapping.id, it) },
                     onDelete = { vm.deleteMapping(mapping.id) },
                 )
             }
 
-            item { SectionTitle("Erkennung") }
+            item { SectionTitle("Erkennung", "Zeiten für Doppeldruck und Gedrückthalten, gelten für alle Tasten.") }
             item { TimingCard(cfg.timing, vm::setTiming) }
 
-            item { SectionTitle("Eingabegeräte") }
+            item {
+                SectionTitle(
+                    "Erkannte Geräte",
+                    "Nur zur Info: alle Eingabegeräte mit Tasten. Gesperrt wird ein Gerät nur über eine Zuordnung.",
+                )
+            }
             if (devices.isEmpty()) {
                 item { Hint("Geräte erscheinen, sobald der Dienst über Shizuku verbunden ist.") }
             }
             items(devices.filter { it.keys.isNotEmpty() }, key = { it.path }) { device ->
-                DeviceCard(
-                    device = device,
-                    exclusive = device.name in cfg.exclusiveDevices,
-                    onExclusive = { vm.setDeviceExclusive(device.name, it) },
-                )
+                DeviceCard(device)
             }
         }
     }
@@ -119,8 +128,11 @@ fun MainScreen(vm: MainViewModel) {
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
+private fun SectionTitle(text: String, description: String) {
+    Column(Modifier.padding(top = 8.dp)) {
+        Text(text, style = MaterialTheme.typography.titleMedium)
+        Hint(description)
+    }
 }
 
 @Composable
@@ -183,23 +195,45 @@ private fun Mono(text: String) {
 }
 
 @Composable
-private fun MappingCard(mapping: Mapping, onEnabled: (Boolean) -> Unit, onDelete: () -> Unit) {
+private fun MappingCard(
+    mapping: Mapping,
+    blockInfo: BlockInfo,
+    onEnabled: (Boolean) -> Unit,
+    onBlock: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+) {
     Card {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(mapping.trigger.keyName, style = MaterialTheme.typography.titleSmall, fontFamily = FontFamily.Monospace)
-                Text(
-                    mapping.trigger.deviceName?.let { "Gerät: $it" } ?: "Gerät: alle",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text("${mapping.gesture.label} → ${mapping.action.label}", style = MaterialTheme.typography.bodyMedium)
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Switch(checked = mapping.enabled, onCheckedChange = onEnabled)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(mapping.trigger.keyName, style = MaterialTheme.typography.titleSmall, fontFamily = FontFamily.Monospace)
+                    Text(
+                        mapping.trigger.deviceName?.let { "Gerät: $it" } ?: "Gerät: alle",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text("${mapping.gesture.label} → ${mapping.action.label}", style = MaterialTheme.typography.bodyMedium)
+                }
                 TextButton(onClick = onDelete) { Text("Löschen") }
             }
+            HorizontalDivider()
+            SwitchRow("Zuordnung aktiv", mapping.enabled, enabled = true, onEnabled)
+            SwitchRow(
+                "Systemfunktion der Taste blockieren",
+                mapping.blockSystemFunction,
+                enabled = blockInfo.possible || mapping.blockSystemFunction,
+                onBlock,
+            )
+            BlockInfoText(blockInfo)
         }
+    }
+}
+
+@Composable
+private fun SwitchRow(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        Switch(checked = checked, enabled = enabled, onCheckedChange = onChange)
     }
 }
 
@@ -227,36 +261,22 @@ private fun MsSlider(label: String, value: Long, range: ClosedFloatingPointRange
 }
 
 @Composable
-private fun DeviceCard(device: InputDevice, exclusive: Boolean, onExclusive: (Boolean) -> Unit) {
+private fun DeviceCard(device: InputDevice) {
     Card {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(device.name, style = MaterialTheme.typography.titleSmall)
-                    Text(device.path, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
-                }
-                Switch(
-                    checked = exclusive,
-                    enabled = device.canBeGrabbed || exclusive,
-                    onCheckedChange = onExclusive,
-                )
-            }
+            Text(device.name, style = MaterialTheme.typography.titleSmall)
+            Text(device.path, style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
             Text(
                 device.keys.take(12).joinToString(", ") + if (device.keys.size > 12) ", …" else "",
                 style = MaterialTheme.typography.bodySmall,
                 fontFamily = FontFamily.Monospace,
             )
             Text(
-                when {
-                    !device.canBeGrabbed -> "Systemfunktion blockieren: nicht möglich (Gerät enthält die Power-Taste)"
-                    exclusive && device.grabbed -> "Systemfunktion blockiert: Android empfängt keine Tasten dieses Geräts"
-                    exclusive -> "Systemfunktion blockieren: aktiviert, wirkt sobald der Dienst verbunden ist"
-                    else -> "Systemfunktion blockieren: aus (Android reagiert zusätzlich auf die Tasten)"
-                },
+                if (device.grabbed) "Status: gesperrt (Android empfängt keine Tasten dieses Geräts)"
+                else "Status: nicht gesperrt",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
 }
-

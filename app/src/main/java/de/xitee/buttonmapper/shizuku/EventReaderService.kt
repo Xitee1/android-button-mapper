@@ -67,7 +67,12 @@ private class EvdevReader(
                 val fd = Os.open(d.path, OsConstants.O_RDONLY or OsConstants.O_NONBLOCK or OsConstants.O_CLOEXEC, 0)
                 open[fd] = d
                 if (d.name in grabNames) {
-                    if (grab(fd)) grabbed += d.path else report { onError("Gerät ${d.name} konnte nicht exklusiv belegt werden") }
+                    when {
+                        // Grabbing the power key device would make the phone unusable.
+                        "KEY_POWER" in d.keys -> report { onError("Gerät ${d.name} wird nicht gesperrt: es enthält die Power-Taste") }
+                        grab(fd) -> grabbed += d.path
+                        else -> report { onError("Gerät ${d.name} konnte nicht gesperrt werden") }
+                    }
                 }
             } catch (e: ErrnoException) {
                 Log.w(TAG, "Cannot open ${d.path}", e)

@@ -87,8 +87,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setTiming(timing: Timing) = update { it.copy(timing = timing) }
 
-    fun setDeviceExclusive(deviceName: String, exclusive: Boolean) = update { cfg ->
-        cfg.copy(exclusiveDevices = if (exclusive) cfg.exclusiveDevices + deviceName else cfg.exclusiveDevices - deviceName)
+    fun setMappingBlocksSystemFunction(id: String, block: Boolean) = update { cfg ->
+        cfg.copy(mappings = cfg.mappings.map { if (it.id == id) it.copy(blockSystemFunction = block) else it })
     }
 
     private fun update(transform: (AppConfig) -> AppConfig) {

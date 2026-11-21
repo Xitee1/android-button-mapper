@@ -36,7 +36,9 @@ import de.xitee.buttonmapper.model.Mapping
 fun AddMappingDialog(vm: MainViewModel, config: AppConfig, onDismiss: () -> Unit) {
     val learned by vm.learnedKey.collectAsStateWithLifecycle()
     val connected by vm.readerConnected.collectAsStateWithLifecycle()
+    val devices by vm.devices.collectAsStateWithLifecycle()
     var onlyThisDevice by remember { mutableStateOf(true) }
+    var block by remember { mutableStateOf(false) }
     var gesture by remember { mutableStateOf(Gesture.SINGLE) }
     var action by remember { mutableStateOf<ActionConfig>(ActionConfig.all.first()) }
 
@@ -69,6 +71,16 @@ fun AddMappingDialog(vm: MainViewModel, config: AppConfig, onDismiss: () -> Unit
                             Checkbox(checked = onlyThisDevice, onCheckedChange = { onlyThisDevice = it })
                             Text("Nur auf diesem Gerät")
                         }
+                        val info = blockInfo(KeyTrigger(key.keyName, key.deviceName.takeIf { onlyThisDevice }), devices)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = block && info.possible,
+                                enabled = info.possible,
+                                onCheckedChange = { block = it },
+                            )
+                            Text("Systemfunktion der Taste blockieren")
+                        }
+                        BlockInfoText(info)
                         OutlinedButton(onClick = vm::startLearning) { Text("Andere Taste") }
                     }
                 }
@@ -108,11 +120,13 @@ fun AddMappingDialog(vm: MainViewModel, config: AppConfig, onDismiss: () -> Unit
                 enabled = key != null,
                 onClick = {
                     key ?: return@TextButton
+                    val trigger = KeyTrigger(key.keyName, key.deviceName.takeIf { onlyThisDevice })
                     vm.saveMapping(
                         Mapping(
-                            trigger = KeyTrigger(key.keyName, key.deviceName.takeIf { onlyThisDevice }),
+                            trigger = trigger,
                             gesture = gesture,
                             action = action,
+                            blockSystemFunction = block && blockInfo(trigger, devices).possible,
                         ),
                     )
                     onDismiss()

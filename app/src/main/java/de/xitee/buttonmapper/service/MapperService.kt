@@ -87,7 +87,7 @@ class MapperService : LifecycleService() {
         lifecycleScope.launch { repository.config.collect { config = it } }
         lifecycleScope.launch {
             ShizukuMonitor.status
-                .combine(repository.config.map { it.exclusiveDevices }.distinctUntilChanged()) { s, grab -> s to grab }
+                .combine(repository.config.map { it.devicesToGrab }.distinctUntilChanged()) { s, grab -> s to grab }
                 .collect { (status, grab) ->
                     if (status == ShizukuStatus.READY) client.run(grab) else client.shutdown()
                     updateNotification()

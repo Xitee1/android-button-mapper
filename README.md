@@ -9,9 +9,13 @@ Assistant-Taste (`KEY_ASSISTANT` auf `gpio-keys`) des Motorola Edge 60 Pro schal
 1. [Shizuku](https://shizuku.rikka.app/) installieren und starten.
 2. App öffnen, „Mapper aktiv“ einschalten, Shizuku-Berechtigung erteilen.
 3. „Zuordnung hinzufügen“ → Taste drücken → Geste und Aktion wählen.
-4. Optional unter „Eingabegeräte“ das Gerät (z. B. `gpio-keys`) auf „Systemfunktion blockieren“
-   stellen. Dann bekommt Android die Tasten dieses Geräts nicht mehr (EVIOCGRAB). Geräte mit
-   Power-Taste lassen sich aus Sicherheitsgründen nicht blockieren.
+4. Optional in der Zuordnung „Systemfunktion der Taste blockieren“ einschalten. Dann reagiert Android
+   nicht mehr selbst auf die Taste. Technisch sperrt die App dafür das ganze Eingabegerät der Taste
+   (EVIOCGRAB), solange der Dienst läuft und die Zuordnung aktiv ist. Enthält das Gerät weitere
+   Tasten, zeigt die App sie als Warnung an. Geräte mit Power-Taste werden nie gesperrt.
+
+Die Liste „Erkannte Geräte“ dient nur zur Info: Sie zeigt alle Eingabegeräte, ihre Tasten und ob sie
+gerade gesperrt sind.
 
 ## Aufbau
 
