@@ -11,6 +11,12 @@ Motorola Edge 60 Pro toggles the flashlight.
 
 The UI is available in English and German and follows the system language.
 
+## Screenshots
+
+| Buttons | Button settings | Gesture actions | Settings |
+|---|---|---|---|
+| ![Main page with the configured buttons](docs/screenshots/home.png) | ![Settings of one button with its gestures](docs/screenshots/button.png) | ![Actions of the press and hold gesture](docs/screenshots/gesture.png) | ![Detection timing and diagnostics](docs/screenshots/settings.png) |
+
 ## Setup
 
 1. Install and start Shizuku.
